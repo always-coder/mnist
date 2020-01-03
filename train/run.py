@@ -39,7 +39,7 @@ def train(epoch):
 
         if use_gpu:
             images = images.cuda()
-            labels = images.cuda()
+            labels = labels.cuda()
 
         output = net(images)
 
@@ -60,12 +60,11 @@ def test():
     total_correct = 0
     avg_loss = 0.0
     for i, (images, labels) in enumerate(data_test_loader):
-        output = net(images)
-        
         if use_gpu:
             images = images.cuda()
-            labels = images.cuda()
+            labels = labels.cuda()
         
+        output = net(images)
         avg_loss += criterion(output, labels).sum()
         pred = output.detach().max(1)[1]
         total_correct += pred.eq(labels.view_as(pred)).sum()
@@ -80,6 +79,7 @@ def train_and_test(epoch):
 
 
 def main():
+ 
     for e in range(1, 16):
         train_and_test(e)
 
