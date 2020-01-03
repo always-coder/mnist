@@ -6,6 +6,7 @@ from torchvision.datasets.mnist import MNIST
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
+use_gpu = 1
 
 data_train = MNIST('./data/mnist',
                    download=True,
@@ -22,6 +23,10 @@ data_train_loader = DataLoader(data_train, batch_size=256, shuffle=True, num_wor
 data_test_loader = DataLoader(data_test, batch_size=1024, num_workers=8)
 
 net = LeNet5()
+
+if use_gpu:
+    net = net.cuda()
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters(), lr=2e-3)
 
@@ -31,6 +36,10 @@ def train(epoch):
     loss_list, batch_list = [], []
     for i, (images, labels) in enumerate(data_train_loader):
         optimizer.zero_grad()
+
+        if use_gpu:
+            images = images.cuda()
+            labels = images.cuda()
 
         output = net(images)
 
@@ -52,6 +61,11 @@ def test():
     avg_loss = 0.0
     for i, (images, labels) in enumerate(data_test_loader):
         output = net(images)
+        
+        if use_gpu:
+            images = images.cuda()
+            labels = images.cuda()
+        
         avg_loss += criterion(output, labels).sum()
         pred = output.detach().max(1)[1]
         total_correct += pred.eq(labels.view_as(pred)).sum()
